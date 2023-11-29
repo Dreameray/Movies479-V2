@@ -1,0 +1,74 @@
+﻿@model MovieModel
+@*Generated from Custom Template.*@
+@*Model namespace using directive should be added to _ViewImports.cshtml.*@
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>Movie</h4>
+<hr />
+<div class="row">
+    <div class="col-12">
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="row mb-3">
+                @Html.LabelFor(model => model.Name, new { @class = "col-2 col-form-label" })
+                <div class="col-5">
+                    @Html.TextBoxFor(model => model.Name, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Name, null, new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                @Html.LabelFor(model => model.Year, new { @class = "col-2 col-form-label" })
+                <div class="col-5">
+                    @Html.TextBoxFor(model => model.Year, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Year, null, new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                @Html.LabelFor(model => model.Revenue, new { @class = "col-2 col-form-label" })
+                <div class="col-5">
+                    @Html.TextBoxFor(model => model.Revenue, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Revenue, null, new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                @Html.LabelFor(model => model.DirectorId, new { @class = "col-2 col-form-label" })
+                <div class="col-5">
+                    @Html.DropDownListFor(model => model.DirectorId, ViewBag.DirectorId as SelectList, "-- Select --", new { @class = "form-select" })
+                    @Html.ValidationMessageFor(model => model.DirectorId, null, new { @class = "text-danger" })
+                </div>
+            </div>
+
+            @Html.HiddenFor(model => model.Id)
+
+@*             <div class="row mb-3">
+                @Html.LabelFor(model => model.Guid, new { @class = "col-2 col-form-label" })
+                <div class="col-5">
+                    @Html.TextBoxFor(model => model.Guid, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Guid, null, new { @class = "text-danger" })
+                </div>
+            </div> *@
+
+            <div class="row mb-3">
+                <div class="offset-2 col-5">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                    &nbsp;&nbsp;
+                    <button type="reset" class="btn btn-outline-primary">Reset</button>
+                    &nbsp;&nbsp;
+                    <a asp-action="Index">Back to List</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,34 @@
+﻿@model MovieModel
+
+<dl class="row">
+    <dt class="col-2">
+        @Html.DisplayNameFor(model => model.Name)
+    </dt>
+    <dd class="col-10">
+        @Html.DisplayFor(model => model.Name)
+    </dd>
+    <dt class="col-2">
+        @Html.DisplayNameFor(model => model.Year)
+    </dt>
+    <dd class="col-10">
+        @Html.DisplayFor(model => model.Year)
+    </dd>
+    <dt class="col-2">
+        @Html.DisplayNameFor(model => model.Revenue)
+    </dt>
+    <dd class="col-10">
+        @Html.DisplayFor(model => model.Revenue)
+    </dd>
+    <dt class="col-2">
+        @Html.DisplayNameFor(model => model.DirectorId)
+    </dt>
+    <dd class="col-10">
+        @Html.DisplayFor(model => model.DirectorId)
+    </dd>
+@*     <dt class="col-2">
+        @Html.DisplayNameFor(model => model.Guid)
+    </dt>
+    <dd class="col-10">
+        @Html.DisplayFor(model => model.Guid)
+    </dd> *@
+</dl>
