@@ -1,4 +1,5 @@
 ﻿#nullable disable 
+using DataAccess;
 using DataAccess.Entities;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Business.Models
 {
-    public class MovieModel
+    public class MovieModel: Record
     {
         
         [Required(ErrorMessage = "{0} is required!")]
