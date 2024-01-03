@@ -3,7 +3,7 @@
 @*Model namespace using directive should be added to _ViewImports.cshtml.*@
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = User.Identity.IsAuthenticated && User.IsInRole("admin") ? "Create User" : "Register User";
 }
 
 <h1>@ViewData["Title"]</h1>

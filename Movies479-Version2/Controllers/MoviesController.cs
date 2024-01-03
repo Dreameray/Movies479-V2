@@ -12,6 +12,11 @@ using DataAccess.Contexts;
 using DataAccess.Entities;
 using Business;
 using Business.Results.Bases;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using System.Data;
 
 //Generated from Custom Template.
 namespace Movies479_Version2.Controllers
@@ -31,6 +36,7 @@ namespace Movies479_Version2.Controllers
         #endregion
 
         // GET: Users/GetList
+        [Authorize]
         public IActionResult GetList()
         {
             // A query is executed and the result is stored in the collection
@@ -42,6 +48,7 @@ namespace Movies479_Version2.Controllers
 
         // Returning user list in JSON format:
         // GET: Users/GetListJson
+        [Authorize]
         public JsonResult GetListJson()
         {
             var movieList = _movieService.Query().ToList();
@@ -82,12 +89,23 @@ namespace Movies479_Version2.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(MovieModel movie)
         {
+
+            if (!User.Identity.IsAuthenticated || !User.IsInRole("admin")) // setting default user model values for registering new users operation
+            {
+                movie.DirectorId = 1;
+
+            }
+
             if (ModelState.IsValid)
             {
 
                 Result result = _movieService.Add(movie); // result referenced object can be of type SuccessResult or ErrorResult
                 if (result.IsSuccessful)
                 {
+
+                    if (!User.Identity.IsAuthenticated || !User.IsInRole("admin")) // if register operation is successful, redirect to the "Account/Login" route
+                        return Redirect("Account/Login"); // custom route redirection
+
                     TempData["Message"] = result.Message; // if there is a redirection, the data should be carried with TempData to the redirected action's view
                     return RedirectToAction(nameof(GetList)); // redirection to the action specified of this controller to get the updated list from database
                 }
@@ -100,6 +118,7 @@ namespace Movies479_Version2.Controllers
         }
 
         // GET: Movies/Edit/5
+        [Authorize]
         public IActionResult Edit(int id)
         {
             MovieModel user = _movieService.Query().SingleOrDefault(u => u.Id == id); // getting the model from the service
@@ -117,6 +136,7 @@ namespace Movies479_Version2.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public IActionResult Edit(MovieModel movie)
         {
             if (ModelState.IsValid)
@@ -159,5 +179,78 @@ namespace Movies479_Version2.Controllers
 
             return RedirectToAction(nameof(GetList));
         }
-	}
+
+
+        #region Movie Authentication
+        // Way 3: we can also change the route template in the HttpGet action method
+        [HttpGet("Account/{action}")]
+        public IActionResult Login()
+        {
+            return View(); // returning the Login view to the user for entering the movie name
+        }
+
+        // Way 1: changing the route by using Route attribute
+        //[Route("Account/{action}")]
+        // Way 2: changing the route by using the HttpPost action method
+        [HttpPost("Account/{action}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(MovieModel movie)
+        {
+            // checking the active user from the database table by the user name
+            var existingUser = _movieService.Query().SingleOrDefault(u => u.Name == movie.Name);
+            if (existingUser is null) // if an active user with the entered user name and password can't be found in the database table
+            {
+                ModelState.AddModelError("", "Invalid movie name"); // send the invalid message to the view's validation summary 
+                return View(); // returning the Login view
+            }
+
+            // Creating the claim list that will be hashed in the authentication cookie which will be sent with each request to the web application.
+            // Only non-critical user data, which will be generally used in the web application such as user name to show in the views or user role
+            // to check if the user is authorized to perform specific actions, should be put in the claim list.
+            // Critical data such as password must never be put in the claim list!
+            List<Claim> movieClaims = new List<Claim>()
+            {
+                new Claim(ClaimTypes.Name, existingUser.Name),
+                new Claim(ClaimTypes.Role, existingUser.DirectorNameOutput),
+            };
+
+            // creating an identity by the claim list and default cookie authentication
+            var movieIdentity = new ClaimsIdentity(movieClaims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // creating a principal by the identity
+            var moviePrincipal = new ClaimsPrincipal(movieIdentity);
+
+            // signing the user in to the MVC web application and returning the hashed authentication cookie to the client
+            await HttpContext.SignInAsync(moviePrincipal);
+            // Methods ending with "Async" should be used with the "await" (asynchronous wait) operator therefore
+            // the execution of the task run by the asynchronous method can be waited to complete and the
+            // result of the method can be used. If the "await" operator is used in a method, the method definition
+            // must be changed by adding "async" keyword before the return type and the return type must be written 
+            // in "Task". If the method is void, only "Task" should be written.
+
+            // redirecting user to the home page
+            return RedirectToAction("Index", "Home");
+        }
+
+        // ~/Account/Logout
+        [HttpGet("Account/{action}")]
+        public async Task<IActionResult> Logout()
+        {
+            // signing out the user by removing the authentication cookie from the client
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // redirecting user to the home page
+            return RedirectToAction("Index", "Home");
+        }
+
+        // ~/Account/AccessDenied
+        [HttpGet("Account/{action}")]
+        public IActionResult AccessDenied()
+        {
+            // returning the partial view "_Error" by sending the message of type string as model
+            return View("_Error", "You don't have access to this operation!");
+        }
+        #endregion
+    }
+
 }

@@ -1,31 +1,106 @@
-﻿<!DOCTYPE html>
+﻿@using System.Globalization;
+@using Movies479_Version2.Settings;
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Movies479_Version2</title>
+    @{
+        string versionedTitle = $"{AppSettings.AppTitle} v{AppSettings.AppVersion.ToString("N1", new CultureInfo("en-US"))}";
+    }
+    <title>@ViewData["Title"] - @versionedTitle</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Movies479_Version2.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/MVC.styles.css" asp-append-version="true" />
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Movies479_Version2</a>
+                <a class="navbar-brand layoutheader" asp-area="" asp-controller="Home" asp-action="Index">@AppSettings.AppTitle</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+
+                        @if (User.Identity.IsAuthenticated) // show link to only logged in users with authentication cookie
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Movies" asp-action="GetList">Movie List</a>
+                            </li>
+                        }
+
+                        @*
+                        application user's role name can be checked by the User object's IsInRole method,
+                        this method also checks whether the application user is authenticated or not,
+                        display "Role List" link for only application users with role "admin"
+                        *@
+
+                        @*
+                        application user's role name can be checked by the User object's IsInRole method,
+                        this method also checks whether the application user is authenticated or not,
+                        display "Role List" link for only application users with role "admin"
+                        *@
+                        @if (User.IsInRole("admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Directors" asp-action="Index">Director List</a>
+                            </li>
+                        }
+
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Genres" asp-action="Index">Genre List</a>
                         </li>
                     </ul>
+
+
+                    <div class="navbar-text">
+                        <ul class="navbar-nav me-auto">
+
+                            @*
+                            application user's authentication cookie can be checked by the User object's Identity property reference's
+                            IsAuthenticated boolean property,
+                            application user's user name in the authentication cookie can be used by User object's Identity property
+                            reference's Name string property
+                            *@
+                            @if (!User.Identity.IsAuthenticated)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
+                                </li>
+
+                                <li class="nav-item">
+
+                                    @* Way 1: *@
+                                    @* <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Create">Register</a> *@
+                                    @* Way 2: we can call the custom conventional route that we defined in the Program.cs for easy access such as https://exampledomain.com/register *@
+                                    <a class="nav-link text-dark" asp-area="" asp-route="Register">Register</a>
+
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item pt-2">
+                                    @* pt-2 Bootstrap class: padding top 2 units *@
+                                    <span class="badge bg-info text-black">@User.Identity.Name</span>
+                                </li>
+
+                                @* writing (escaping) text in Razor C# code: *@
+                                @* Way 1: *@
+                                @* <text>&nbsp;&nbsp;</text> *@
+                                @* Way 2: *@
+                                @:&nbsp;&nbsp;
+
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+
+
                 </div>
             </div>
         </nav>
@@ -35,10 +110,9 @@
             @RenderBody()
         </main>
     </div>
-
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2023 - Movies479_Version2 - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; @DateTime.Now.Year - Movies - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

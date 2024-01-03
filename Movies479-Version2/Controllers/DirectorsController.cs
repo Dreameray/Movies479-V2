@@ -11,10 +11,12 @@ using DataAccess.Entities;
 using Business.Services;
 using Business.Models;
 using System.Data;
+using Microsoft.AspNetCore.Authorization;
 
 //Generated from Custom Template.
 namespace Movies479_Version2.Controllers
 {
+    [Authorize(Roles = "admin")]
     public class DirectorsController : Controller
     {
         // TODO: Add service injections here

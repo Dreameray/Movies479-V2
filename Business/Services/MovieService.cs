@@ -14,7 +14,7 @@ namespace Business
         Result Add(MovieModel model);
         Result Update(MovieModel model);
 
-        [Obsolete("Do not use this method anymore, use DeleteUser method instead!")]
+        [Obsolete("Do not use this method anymore, use DeleteMovie method instead!")]
         Result Delete(int id);
 
         Result DeleteMovie(int id);

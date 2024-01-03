@@ -1,0 +1,65 @@
+﻿@model GenreModel
+@* Generated from Custom Template. *@
+
+@{
+    ViewData["Title"] = "Create Genre";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>Genre</h4>
+<hr />
+<div class="row">
+    <div class="col-12">
+
+        <!-- autocomplete="off" HTML attribute can be used for preventing browser's cached data used in the form -->
+        <form asp-action="Create" autocomplete="off">
+
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="row mb-3">
+                <label asp-for="Name" class="col-2 col-form-label"></label>
+                <div class="col-5">
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+            </div>
+
+            @* Managing many-to-many relationship *@
+            <div class="row mb-3">
+                <label asp-for="MovieIdsInput" class="col-2 col-form-label"></label>
+                <div class="col-5">
+                    @*
+                    Since the application user may select many movies,
+                    we created a list box by using the multiple HTML attribute
+                    *@
+                    <select multiple asp-for="MovieIdsInput" class="form-select select2" asp-items="ViewBag.MovieId"></select>
+                    <span asp-validation-for="MovieIdsInput" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="offset-2 col-5">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                    &nbsp;&nbsp;
+                    <button type="reset" class="btn btn-outline-primary">Reset</button>
+                    &nbsp;&nbsp;
+                    <a asp-action="Index">Back to List</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @* https://select2.org/ *@
+    <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
+    <script src="~/lib/select2/js/select2.min.js"></script>
+
+    <script>
+        $(function () { // after the HTML DOM is loaded
+            // Convert the select with class select2 to JS-CSS Select2
+            $(".select2").select2();
+        });
+    </script>
+}
